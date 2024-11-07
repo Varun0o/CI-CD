@@ -8,13 +8,17 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
+        echo 'Cloning repository...'
         git branch: 'main', url: 'https://github.com/Varun0o/CI-CD.git' // Ensure the repo is cloned
+        echo 'Listing workspace contents...'
+        sh 'ls -lR'  // List all files in the workspace to confirm directory existence
       }
     }
     stage('Build and Test') {
       steps {
-        sh 'ls -ltr' // List files to verify the repo and directories are correct
-        sh 'cd CI-CD/spring-boot-app && mvn clean package' // Build the project
+        echo 'Listing files before build...'
+        sh 'ls -ltr'  // List the files in the current workspace
+        sh 'cd CI-CD/spring-boot-app && mvn clean package'  // Build the project
       }
     }
     stage('Static Code Analysis') {
