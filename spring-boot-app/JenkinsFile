@@ -9,14 +9,13 @@ pipeline {
     stage('Checkout') {
       steps {
         sh 'echo passed'
-        //git branch: 'main', url: 'https://github.com/Varun0o/CI-CD.git'
+        git branch: 'main', url: 'https://github.com/Varun0o/CI-CD.git' // Ensure the repo is cloned
       }
     }
     stage('Build and Test') {
       steps {
-        sh 'ls -ltr'
-        // build the project and create a JAR file
-        sh 'cd CI-CD/spring-boot-app && mvn clean package'
+        sh 'ls -ltr' // List files to verify the repo and directories are correct
+        sh 'cd CI-CD/spring-boot-app && mvn clean package' // Build the project
       }
     }
     stage('Static Code Analysis') {
@@ -32,7 +31,6 @@ pipeline {
     stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "varun0o/ultimate-cicd:${BUILD_NUMBER}"
-        // DOCKERFILE_LOCATION = "CI-CD/spring-boot-app/Dockerfile"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
       }
       steps {
@@ -46,23 +44,23 @@ pipeline {
       }
     }
     stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "CI-CD"
-            GIT_USER_NAME = "Varun0o"
+      environment {
+        GIT_REPO_NAME = "CI-CD"
+        GIT_USER_NAME = "Varun0o"
+      }
+      steps {
+        withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+          sh '''
+            git config user.email "varun.xyz@gmail.com"
+            git config user.name "Varun Sharma"
+            BUILD_NUMBER=${BUILD_NUMBER}
+            sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" CI-CD/spring-boot-app-manifests/deployment.yml
+            git add CI-CD/spring-boot-app-manifests/deployment.yml
+            git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+          '''
         }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    git config user.email "varun.xyz@gmail.com"
-                    git config user.name "Varun Sharma"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" CI-CD/spring-boot-app-manifests/deployment.yml
-                    git add CI-CD/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
-            }
-        }
+      }
     }
   }
 }
