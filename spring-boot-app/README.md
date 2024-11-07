@@ -10,8 +10,8 @@ This is a MVC architecture based application where controller returns a page wit
 Checkout the repo and move to the directory
 
 ```
-https://github.com/Varun0o/CI-CD-of-Spring-Boot-Based-Java-Web-Application/
-cd CI-CD-of-Spring-Boot-Based-Java-Web-Application/spring-boot-app
+https://github.com/Varun0o/CI-CD
+cd CI-CD
 ```
 
 Execute the Maven targets to generate the artifacts
