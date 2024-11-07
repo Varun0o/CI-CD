@@ -6,6 +6,13 @@ pipeline {
     }
   }
   stages {
+    stage('Clean Workspace') {
+      steps {
+        echo 'Cleaning workspace to remove any previous build files...'
+        // Ensure a clean workspace before starting
+        sh 'rm -rf *'  // Remove all files in the workspace
+      }
+    }
     stage('Checkout') {
       steps {
         echo 'Cloning repository...'
@@ -24,6 +31,8 @@ pipeline {
         echo 'Checking if spring-boot-app exists...'
         // Check if the directory exists before attempting to build
         sh 'if [ -d "spring-boot-app" ]; then echo "Directory exists"; else echo "Directory not found"; fi'
+        // Ensure a clean repository before build to avoid permission issues
+        sh 'cd spring-boot-app && git reset --hard && git clean -fdx'  // Clean untracked files and reset repository
         // Now, attempt to build the project
         sh 'cd spring-boot-app && mvn clean package'  // Build the project
       }
